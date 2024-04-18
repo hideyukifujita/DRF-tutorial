@@ -39,7 +39,10 @@ def snippet_detail(request, pk):
         pk (int): プライマリーキー
 
     Returns:
-        JsonResponse or HttpResponses: JSON or ステータスコード
+        Union[
+            JsonResponse,
+            HttpResponses
+        ]: JSON or ステータスコード
     """
     try:
         snippet = Snippet.objects.get(pk=pk)
