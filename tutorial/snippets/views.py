@@ -1,106 +1,72 @@
-from django.http import Http404
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import mixins
+from rest_framework import generics
 
 from snippets.models import Snippet
 from snippets.serializers import SnippetSerializer
 
 
-class SnippetList(APIView):
-    def get(self, request, format=None):
-        """requestを受け取って、JSONを返す
+class SnippetList(mixins.ListModelMixin,
+                  mixins.CreateModelMixin,
+                  generics.GenericAPIView):
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetSerializer
+
+    def get(self, request, *args, **kwargs):
+        """requestを受け取って、Snippetのリストを取得する
 
         Args:
             request (HttpRequest): HttpRequestオブジェクト
-            format (_type_, optional): _description_. Defaults to None.
 
         Returns:
             Response: JSON
         """
-        snippets = Snippet.objects.all()
-        serializer = SnippetSerializer(snippets, many=True)
-        return Response(serializer.data)
+        return self.list(request, *args, **kwargs)
     
-    def post(self, request, format=None):
-        """requestを受け取って、更新してJSONを返す
+    def post(self, request, *args, **kwargs):
+        """requestを受け取って、Snippetを作成する
 
         Args:
             request (HttpRequest): HttpRequestオブジェクト
-            format (_type_, optional): _description_. Defaults to None.
 
         Returns:
             Response: JSON
         """
-        serializer = SnippetSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+        return self.create(request, *args, **kwargs)
 
-class SnippetDetail(APIView):
-    def get_object(self, pk):
-        """pkを受け取って、対象のSnippetオブジェクトを返す
 
-        Args:
-            pk (int): プライマリーキー
-
-        Returns:
-            Union[
-                Snippet,
-                Http404
-            ]: Snippetオブジェクト or 404エラー
-        """
-        try:
-            return Snippet.objects.get(pk=pk)
-        except Snippet.DoesNotExist:
-            raise Http404
-        
-    def get(self, request, pk, format=None):
-        """request, pkを受け取って、対象のJSONを返す
+class SnippetDetail(mixins.RetrieveModelMixin,
+                    mixins.UpdateModelMixin,
+                    mixins.DestroyModelMixin,
+                    generics.GenericAPIView):
+    def get(self, request, *args, **kwargs):
+        """requestを受け取って、Snippetを取得する
 
         Args:
             request (HttpRequest): HttpRequestオブジェクト
-            pk (int): プライマリーキー
-            format (_type_, optional): _description_. Defaults to None.
 
         Returns:
             Response: JSON
         """
-        snippet = self.get_object(pk)
-        serializer = SnippetSerializer(snippet)
-        return Response(serializer.data)
+        return self.retrieve(request, *args, **kwargs)
     
-    def put(self, request, pk, format=None):
-        """request, pkを受け取って、対象を更新しJSONを返す
+    def put(self, request, *args, **kwargs):
+        """requestを受け取って、Snippetを更新する
 
         Args:
             request (HttpRequest): HttpRequestオブジェクト
-            pk (int): プライマリーキー
-            format (_type_, optional): _description_. Defaults to None.
 
         Returns:
             Response: JSON
         """
-        snippet = self.get_object(pk)
-        serializer = SnippetSerializer(snippet, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        return self.update(request, *args, **kwargs)
     
-    def delete(self, request, pk, format=None):
-        """request, pkを受け取って、対象を削除してステータスコードを返す
+    def delete(self, request, *args, **kwargs):
+        """requestを受け取って、Snippetを削除する
 
         Args:
             request (HttpRequest): HttpRequestオブジェクト
-            pk (int): プライマリーキー
-            format (_type_, optional): _description_. Defaults to None.
 
         Returns:
             Response: ステータスコード
         """
-        snippet = self.get_object(pk)
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return self.destroy(request, *args, **kwargs)
