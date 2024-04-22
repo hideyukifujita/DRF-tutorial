@@ -11,7 +11,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
             obj (dict): Snippetオブジェクト
 
         Returns:
-            bool: True or False
+            bool
         """
         if request.method in permissions.SAFE_METHODS:
             return True
