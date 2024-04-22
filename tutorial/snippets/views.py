@@ -1,4 +1,7 @@
 from rest_framework import generics, permissions
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from django.contrib.auth.models import User
 
 from snippets.models import Snippet
@@ -36,3 +39,20 @@ class UserList(generics.ListAPIView):
 class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+@api_view(["GET"])
+def api_root(request, format=None):
+    """requestを受け取って、URLを含んだdictを返す
+
+    Args:
+        request (HttpRequest): HttpRequestオブジェクト
+        format (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        Response: URL
+    """
+    return Response({
+        "users": reverse("user-list", request=request, format=None),
+        "snippets": reverse("snippet-list", request=request, format=None),
+    })
