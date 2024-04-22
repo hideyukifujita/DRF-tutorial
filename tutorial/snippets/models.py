@@ -15,8 +15,8 @@ class Snippet(models.Model):
     linenos = models.BooleanField(default=False, db_comment="")
     language = models.CharField(choices=LANGUAGE_CHOICES, default="python", max_length=100, db_comment="プログラミング言語")
     style = models.CharField(choices=STYLE_CHOICES, default="friendly", max_length=100, db_comment="")
-    owner = models.ForeignKey("auth.User", related_name="snippets", on_delete=models.CASCADE)
-    highlighted = models.TextField()
+    owner = models.ForeignKey("auth.User", related_name="snippets", on_delete=models.CASCADE, db_comment="作成者")
+    highlighted = models.TextField(db_comment="HTML")
 
     class Meta:
         ordering = ["created"]
