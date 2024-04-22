@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, renderers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -56,3 +56,20 @@ def api_root(request, format=None):
         "users": reverse("user-list", request=request, format=None),
         "snippets": reverse("snippet-list", request=request, format=None),
     })
+
+
+class SnippetHighlight(generics.GenericAPIView):
+    queryset = Snippet.objects.all()
+    renderer_classes = [renderers.StaticHTMLRenderer]
+
+    def get(self, request, *args, **kwargs):
+        """requestを受け取って、snippetのhighlightedを返す
+
+        Args:
+            request (HttpRequest): HttpRequestオブジェクト
+
+        Returns:
+            Response: HTML
+        """
+        snippet = self.get_object()
+        return Response(snippet.highlighted)
